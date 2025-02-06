@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>投资页面</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1e1e1e;
+      /* 页面背景 */
+      color: white;
+      padding: 20px;
+    }
+
+    .container {
+      margin: auto;
+      /* 统一背景色 */
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    /* 标题样式 */
+    h3,
+    h4 {
+      text-align: left;
+      margin-bottom: 10px;
+    }
+
+    .rate-box {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .rate-item {
+      width: 23%;
+      padding: 10px;
+      background-color: #323232;
+      border-radius: 5px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    /* 金色背景部分 */
+    .highlight {
+      background-color: #FFD700;
+      color: black;
+      font-weight: bold;
+      border-radius: 5px;
+    }
+
+    .investment-section {
+      margin-top: 20px;
+      background-color: #323232;
+      padding: 15px;
+      border-radius: 5px;
+    }
+
+    .investment-section p {
+      color: red;
+      font-size: 14px;
+    }
+
+    .amount-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .amount-buttons button {
+      background-color: #444;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 23%;
+    }
+
+    /* 选中的金额按钮金色背景 */
+    .amount-buttons button.selected {
+      background-color: #FFD700;
+      color: black;
+      font-weight: bold;
+    }
+
+    .amount-buttons button:hover {
+      background-color: #555;
+    }
+
+    .other-amount {
+      margin-top: 15px;
+      text-align: left;
+    }
+
+    .other-amount input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #666;
+      background-color: #222;
+      color: white;
+      font-size: 16px;
+    }
+
+    .balance-info {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      font-size: 14px;
+      color: #bbb;
+    }
+
+    .divider {
+      margin: 15px 0;
+      border-top: 1px solid #555;
+    }
+
+    .confirm-button {
+      width: 100%;
+      background-color: #FFD700;
+      color: black;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .confirm-button:hover {
+      background-color: #FFC107;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h3>结算时间/倍率</h3>
+    <div class="rate-box">
+      <div class="rate-item highlight">
+        <p>时间</p>
+        <p>240S</p>
+        <p>收益 5%</p>
+        <p>100|1000</p>
+      </div>
+      <div class="rate-item">
+        <p>时间</p>
+        <p>240S</p>
+        <p>收益 7%</p>
+        <p>100|5000</p>
+      </div>
+      <div class="rate-item">
+        <p>时间</p>
+        <p>240S</p>
+        <p>收益 9%</p>
+        <p>500|10000</p>
+      </div>
+      <div class="rate-item">
+        <p>时间</p>
+        <p>240S</p>
+        <p>收益 12%</p>
+        <p>10000|100000</p>
+      </div>
+    </div>
+
+    <div class="investment-section">
+      <h4>投资金额</h4>
+      <p>投资金额余额不足，请充值！</p>
+      <div class="amount-buttons">
+        <button class="selected">100</button>
+        <button>1000</button>
+        <button>5000</button>
+        <button>10000</button>
+      </div>
+
+      <div class="other-amount">
+        <h4>其他金额</h4>
+        <input type="text" placeholder="请输入其他金额">
+      </div>
+
+      <div class="balance-info">
+        <span>余额: 0.00</span>
+        <span>手续费: 0%</span>
+      </div>
+
+      <div class="divider"></div> <!-- 分割线 -->
+
+      <button class="confirm-button">确认下单</button>
+    </div>
+  </div>
+
+</body>
+
+</html>

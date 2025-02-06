@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>倒计时圆环</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    .timer-container {
+      position: relative;
+      width: 150px;
+      height: 150px;
+    }
+
+    .progress-ring {
+      transform: rotate(-90deg);
+    }
+
+    .progress-ring circle {
+      transition: stroke-dashoffset 1s linear;
+    }
+
+    .countdown-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 32px;
+      font-weight: bold;
+      color: #3498db;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="timer-container">
+    <svg class="progress-ring" width="150" height="150">
+      <!-- 背景圆环 -->
+      <circle cx="75" cy="75" r="60" fill="none" stroke="#444" stroke-width="8"></circle>
+      <!-- 进度圆环 -->
+      <circle id="progress" cx="75" cy="75" r="60" fill="none" stroke="yellow" stroke-width="8" stroke-linecap="round"
+        stroke-dasharray="377" stroke-dashoffset="0"></circle>
+    </svg>
+    <div id="countdown" class="countdown-text">30</div>
+  </div>
+
+  <script>
+    const totalSeconds = 30;  // 设置倒计时时长
+    let remainingTime = totalSeconds;
+
+    const countdownText = document.getElementById('countdown');
+    const progressCircle = document.getElementById('progress');
+    const circumference = 2 * Math.PI * 60;  // 计算圆的周长
+
+    function updateProgress() {
+      const progress = (remainingTime / totalSeconds) * circumference;
+      progressCircle.style.strokeDashoffset = circumference - progress;
+      countdownText.textContent = remainingTime;
+    }
+
+    const timer = setInterval(() => {
+      if (remainingTime <= 0) {
+        clearInterval(timer);
+      } else {
+        remainingTime--;
+        updateProgress();
+      }
+    }, 1000);
+
+    updateProgress();  // 初始化进度条
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>移动端布局页面</title>
+  <!-- 引入 Layui 的 CSS 文件 -->
+  <link rel="stylesheet" href="https://cdn.staticfile.org/layui/2.8.12/css/layui.min.css">
+  <link rel="stylesheet" href="https://cdn.staticfile.org/layui/2.8.12/css/layui.min.css">
+  <style>
+    /* 全局样式，去除默认的内外边距 */
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: relative;
+      /* background-color: rgb(19, 26, 45); */
+      font-family: Arial, sans-serif;
+      background-color: #1e1e1e;
+      color: white;
+    }
+
+    .dynamic-id {
+      margin-left: 10px;
+    }
+
+    /* 上半部分样式 */
+    .top-section {
+      flex: 1;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      /* 改为 flex-start */
+      padding-left: 20px;
+      /* 增加左边距 */
+    }
+
+
+    /* 列表样式 */
+    .top-section ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      width: 80%;
+    }
+
+    .top-section li {
+      padding: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* 列表前图片样式 */
+    .list-icon {
+      width: 19px;
+      height: 19px;
+      margin-right: 10px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .top-list .label {
+      width: 130px;
+    }
+
+    /* 下半部分样式 */
+    .bottom-section {
+      flex: 1;
+      background-color: rgb(19, 26, 45);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: white;
+    }
+
+    /* 表格样式 */
+    table {
+      width: 98%;
+      border-collapse: collapse;
+      color: white;
+      font-size: 12px;
+      margin: 0 auto;
+    }
+
+    th,
+    td {
+      border: none;
+      padding: 5px;
+      text-align: center;
+    }
+
+    th {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* 余额样式 */
+    .balance {
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    /* 下单金额样式 */
+    .order-amount {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .order-amount label {
+      margin-right: 10px;
+      font-size: 14px;
+    }
+
+    .order-amount input {
+      padding: 8px;
+      border: none;
+      border-radius: 4px;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
+      width: 150px;
+    }
+
+    /* 确认下单按钮样式 */
+    .confirm-order {
+      margin-top: 20px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      background-color: #007BFF;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .confirm-order:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+
+    /* 倒计时时钟样式 */
+    .countdown-clock {
+      width: 25vw;
+      /* 直径为视口宽度的 25% */
+      height: 25vw;
+      /* 直径为视口宽度的 25% */
+      border-radius: 50%;
+      /* 使元素成为圆形 */
+      background-color: rgb(19, 26, 45);
+      color: white;
+      font-family: Arial, sans-serif;
+      font-size: 8vw;
+      /* 增大字体大小 */
+      font-weight: bold;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      z-index: 1;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      /* 初始边框样式，使用橙红色 */
+      background-image: conic-gradient(#808080 0deg, #808080 360deg, transparent 360deg);
+      background-origin: border-box;
+      background-clip: content-box, border-box;
+      border: 3px solid transparent;
+      transition: background-image 0.5s ease;
+    }
+
+    /* 提示文字样式 */
+    .countdown-clock.prompt-text {
+      font-size: 18px;
+      color: white;
+      text-shadow: 0 0 10px rgba(255, 69, 0, 0.8);
+    }
+
+    .timer-box {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    .timer-container {
+      position: relative;
+      width: 220px;
+      height: 220px;
+    }
+
+    .progress-ring {
+      transform: rotate(-90deg);
+    }
+
+    .progress-ring circle {
+      transition: stroke-dashoffset 1s linear;
+    }
+
+    .countdown-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 32px;
+      font-weight: bold;
+      color: #3c7ff9;
+    }
+
+
+    .container {
+      padding: 20px;
+    }
+
+    /* 标题样式 */
+    h3,
+    h4 {
+      text-align: left;
+      margin-bottom: 10px;
+    }
+
+    .rate-box {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .rate-item {
+      width: 24%;
+      padding: 10px;
+      background-color: #323232;
+      border-radius: 5px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    /* 金色背景部分 */
+    .highlight {
+      background-color: #FFD700;
+      color: black;
+      font-weight: bold;
+      border-radius: 5px;
+    }
+
+    .investment-section {
+      margin-top: 20px;
+      background-color: #323232;
+      padding: 15px;
+      border-radius: 5px;
+    }
+
+    .investment-section p {
+      color: red;
+      font-size: 14px;
+    }
+
+    .amount-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .amount-buttons button {
+      background-color: #444;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 23%;
+    }
+
+    /* 选中的金额按钮金色背景 */
+    .amount-buttons button.selected {
+      background-color: #FFD700;
+      color: black;
+      font-weight: bold;
+    }
+
+    .amount-buttons button:hover {
+      background-color: #555;
+    }
+
+    .other-amount {
+      margin-top: 15px;
+      text-align: left;
+    }
+
+    .other-amount input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #666;
+      background-color: #222;
+      color: white;
+      font-size: 16px;
+    }
+
+    .balance-info {
+      display: flex;
+      margin-top: 10px;
+      font-size: 14px;
+      color: #bbb;
+    }
+    .balance-info .service-charge {
+      margin-left: 25%;
+    }
+
+    .divider {
+      margin: 15px 0;
+      border-top: 1px solid #555;
+    }
+
+    .confirm-button {
+      width: 100%;
+      background-color: #FFD700;
+      color: black;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .confirm-button:hover {
+      background-color: #FFC107;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 上半部分 -->
+  <div class="top-section">
+    <ul class="top-list">
+      <li>
+        <span class="list-icon" style="background-image: url('/Public/mobile/img/icon/icon1.png');"></span>
+        <span class="label">{:L('1位成人入驻')}</span><span class="dynamic-id"></span>
+      </li>
+      <li>
+        <span class="list-icon" style="background-image: url('/Public/mobile/img/icon/icon2.png');"></span>
+        <span class="label">{:L('1张超大号床')}</span><span class="dynamic-id"></span>
+      </li>
+      <li>
+        <span class="list-icon" style="background-image: url('/Public/mobile/img/icon/icon3.png');"></span>
+        <span class="label">{:L('1张超大号床')}</span> <span class="dynamic-id"></span>
+      </li>
+      <li>
+        <span class="list-icon" style="background-image: url('/Public/mobile/img/icon/icon4.png');"></span>
+        <span class="label">{:L('50-500 平方米')}</span><span class="dynamic-id"></span>
+      </li>
+      <li>
+        <span class="list-icon" style="background-image: url('/Public/mobile/img/icon/icon5.png');"></span>
+        <span class="label">{:L('空调')}</span><span class="dynamic-id"></span>
+      </li>
+      <li>
+        <span class="list-icon" style="background-image: url('/Public/mobile/img/icon/icon6.png');"></span>
+        <span class="label">{:L('浴缸')}</span><span class="dynamic-id"></span>
+      </li>
+      <li>
+        <span class="list-icon" style="background-image: url('/Public/mobile/img/icon/icon7.png');"></span>
+        <span class="label">{:L('大屏液晶电视')}</span><span class="dynamic-id"></span>
+      </li>
+    </ul>
+  </div>
+  <!-- 下半部分 -->
+  <!-- <div class="bottom-section">
+    <table>
+      <tr>
+        <th>{:L('时间')}</th>
+        <th>{:L('时间')}</th>
+        <th>{:L('时间')}</th>
+        <th>{:L('时间')}</th>
+        <th>{:L('时间')}</th>
+      </tr>
+      <tr>
+        <td>240{:L('秒')}</td>
+        <td>200{:L('秒')}</td>
+        <td>150{:L('秒')}</td>
+        <td>100{:L('秒')}</td>
+        <td>60{:L('秒')}</td>
+      </tr>
+      <tr>
+        <td>500 - 49999</td>
+        <td>50000 - 99999</td>
+        <td>100000 - 199999</td>
+        <td>200000 - 499999</td>
+        <td>500000</td>
+      </tr>
+      <tr>
+        <td>{:L('收益')}6%</td>
+        <td>{:L('收益')}8%</td>
+        <td>{:L('收益')}10%</td>
+        <td>{:L('收益')}15%</td>
+        <td>{:L('收益')}20%</td>
+      </tr>
+    </table>
+    <div class="balance" id='balance'>{:L('余额')}：{$user['money']}</div>
+    <div class="order-amount">
+      <label for="order-amount-input">{:L('下单金额')}</label>
+      <input type="number" id="order-amount-input" placeholder="{:L('请输入金额')}">
+    </div>
+    <button class="confirm-order">{:L('确认下单')}</button>
+  </div> -->
+
+  <div class="container">
+    <h3>结算时间 / 倍率</h3>
+    <div class="rate-box">
+      <div class="rate-item highlight">
+        <p>{:L('时间')}</p>
+        <p>{:L('秒')}</p>
+        <p>收益 5%</p>
+        <p>100|1000</p>
+      </div>
+      <div class="rate-item">
+        <p>{:L('时间')}</p>
+        <p>{:L('秒')}</p>
+        <p>收益 7%</p>
+        <p>100|5000</p>
+      </div>
+      <div class="rate-item">
+        <p>{:L('时间')}</p>
+        <p>{:L('秒')}</p>
+        <p>收益 9%</p>
+        <p>500|10000</p>
+      </div>
+      <div class="rate-item">
+        <p>{:L('时间')}</p>
+        <p>{:L('秒')}</p>
+        <p>收益 12%</p>
+        <p>10000|100000</p>
+      </div>
+    </div>
+
+    <div class="investment-section">
+      <h4>投资金额</h4>
+      <p>投资金额余额不足，请充值！</p>
+      <div class="amount-buttons">
+        <button class="selected">100</button>
+        <button>1000</button>
+        <button>5000</button>
+        <button>10000</button>
+      </div>
+
+      <div class="other-amount">
+        <h4>其他金额</h4>
+        <input type="text" placeholder="其他金额">
+      </div>
+
+      <div class="balance-info">
+        <span class="">余额: 0.00</span>
+        <span class="service-charge">手续费: 0%</span>
+      </div>
+
+      <div class="divider"></div> <!-- 分割线 -->
+
+      <button class="confirm-button">确认下单</button>
+    </div>
+  </div>
+
+  <!-- <div class="countdown-clock" id="countdown-clock" style="display: none;"></div> -->
+  <div class="timer-box" id="timer-box" style="display: none;">
+    <div class="timer-container" id="countdown-clock">
+      <svg class="progress-ring" width="220" height="220">
+        <!-- 背景圆环 -->
+        <circle cx="110" cy="110" r="80" fill="none" stroke="#444" stroke-width="8"></circle>
+        <!-- 进度圆环 -->
+        <circle id="progress" cx="110" cy="110" r="80" fill="none" stroke="#f0b72c" stroke-width="8"
+          stroke-linecap="round" stroke-dasharray="377" stroke-dashoffset="0"></circle>
+      </svg>
+      <div id="countdown" class="countdown-text"></div>
+    </div>
+  </div>
+
+  <!-- 引入 Layui 的 JavaScript 文件 -->
+  <script src="https://cdn.staticfile.org/layui/2.8.12/layui.min.js"></script>
+  <script>
+    layui.use(['layer', 'jquery'], function () {
+      const layer = layui.layer;
+      const $ = layui.jquery;
+      const confirmOrderButton = document.querySelector('.confirm-order');
+      const orderAmountInput = document.getElementById('order-amount-input');
+      const timeRow = document.querySelector('table tr:nth-child(2)');
+      const shouyiRow = document.querySelector('table tr:nth-child(4)');
+      const amountRangeRow = document.querySelector('table tr:nth-child(3)');
+      const timerBox = document.getElementById('timer-box');
+      const countdownClock = document.getElementById('countdown-clock');
+      const countdownText = document.getElementById('countdown');
+      const progressCircle = document.getElementById('progress');
+      const circumference = 2 * Math.PI * 60;  // 计算圆的周长
+
+      confirmOrderButton.addEventListener('click', function () {
+        const amount = parseFloat(orderAmountInput.value);
+
+        // 检查下单金额是否合法
+        if (isNaN(amount) || amount < 500 || amount > 500000) {
+          layer.msg("{:L('下单金额不合法')}");
+          return;
+        }
+
+        let columnIndex = -1;
+        // 遍历第三行的每个单元格，找到匹配的金额区间
+        for (let i = 0; i < amountRangeRow.cells.length; i++) {
+          const cellText = amountRangeRow.cells[i].textContent;
+          let min, max;
+          if (cellText.includes('-')) {
+            [min, max] = cellText.split('-').map(Number);
+          } else {
+            min = max = parseInt(cellText);
+          }
+          if (amount >= min && amount <= max) {
+            columnIndex = i;
+            break;
+          }
+        }
+
+        if (columnIndex !== -1) {
+          const timeCell = timeRow.cells[columnIndex];
+          const timeText = timeCell.textContent.replace("{:L('秒')}", '');
+          const countdownTime = parseInt(timeText);
+
+          const shouyiCell = shouyiRow.cells[columnIndex];
+          const shouyiText = shouyiCell.textContent.replace("{:L('收益')}", '');
+
+          // 禁用按钮并改变颜色
+          confirmOrderButton.disabled = true;
+
+          const orderData = {
+            amount: amount,
+            shouyi: shouyiText,
+            time: countdownTime
+          };
+          $.ajax({
+            url: "{:U('form')}",
+            type: 'POST',
+            data: JSON.stringify(orderData),
+            contentType: 'application/json',
+            dataType: 'json',
+            success: function (data) {
+              console.log('Success:', data);
+              $('#balance').html("{:L('余额')}:" + data.balance);
+              layer.msg("{:L('下单成功')}");
+            },
+            error: function (error) {
+              layer.msg("{:L('订单处理失败，请稍后重试')}");
+            }
+          });
+
+          setTimeout(function () {
+            console.log('这段代码延迟了1秒执行');
+          }, 1000);
+
+          // 显示倒计时时钟并显示提示信息
+          timerBox.style.display = 'flex';
+          countdown.textContent = "{:L('返佣中')}";
+          countdownClock.classList.add('prompt-text');
+
+          // 延迟2秒后开始倒计时
+          let remainingTime = countdownTime;
+          setTimeout(() => {
+            countdownClock.classList.remove('prompt-text');
+            const countdownInterval = setInterval(() => {
+              if (remainingTime >= 0) {
+                // countdownClock.textContent = remainingTime;
+                // 动态计算渐变角度，实现逆时针减少
+                // const angle = (remainingTime / countdownTime) * 360;
+                // countdownClock.style.backgroundImage = `conic-gradient(#808080 0deg, #808080 ${angle}deg, transparent ${angle}deg)`;
+                remainingTime--;
+                updateProgress();
+              }
+              if (remainingTime < 0) {
+                clearInterval(countdownInterval);
+                timerBox.style.display = 'none';
+                // 移除边框
+                // countdownClock.style.backgroundImage = 'none';
+                // 启用按钮并恢复颜色
+                confirmOrderButton.disabled = false;
+
+                // 发起 AJAX 请求
+                const orderData = {
+                  amount: amount
+                };
+                fetch("{:U('isjiesuan')}", {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(orderData)
+                })
+                  .then(response => {
+                    if (!response.ok) {
+                      throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                  })
+                  .then(data => {
+                    console.log('Success:', data);
+                    $('#balance').html('余额:' + data.balance);
+                    // 可以在这里添加处理响应数据的逻辑，比如显示成功提示等
+                    layer.msg('恭喜您收益已入袋!');
+                  })
+                  .catch(error => {
+                    console.error('Error:', error);
+                    layer.msg('网络错误!');
+                  });
+              }
+            }, 1000);
+
+            updateProgress();  // 初始化进度条
+          }, 2000);
+
+          function updateProgress() {
+            const progress = (remainingTime / countdownTime) * circumference;
+            progressCircle.style.strokeDashoffset = circumference - progress;
+            countdown.textContent = remainingTime;
+            console.log('調用了 progeree');
+          }
+        }
+      });
+    });
+
+
+    // 动态生成 ID 并更新
+    function updateDynamicIds() {
+      const dynamicIds = document.querySelectorAll('.dynamic-id');
+
+      dynamicIds.forEach(span => {
+        const randomId = Math.floor(Math.random() * 1000000); // 生成随机 ID
+        span.textContent = " {:L('ID')}" + ` ${randomId} ` + " {:L('已下订单')}";
+      });
+    }
+
+    // 每 5 秒更新一次
+    setInterval(updateDynamicIds, 5000);
+
+    // 初始化时立即更新一次
+    updateDynamicIds();
+  </script>
+
+
+
+
+  <!--end-->
+  </div>
+</body>
+<script type="text/javascript" src="__PUBLIC__/mobile/js/jquery.js"></script>
+<script type="text/javascript" src="__PUBLIC__/mobile/js/font.js"></script>
+<script type="text/javascript">
+  $(function () {
+    $('.confirm').click(function () {
+      $('#subform').submit();
+    });
+  })
+</script>
+
+</html>
