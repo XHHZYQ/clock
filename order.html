@@ -15,6 +15,7 @@
       margin: 0;
       box-sizing: border-box;
     }
+
     body {
       margin: 0;
       padding: 0;
@@ -87,21 +88,41 @@
     /* 表格样式 */
     table {
       width: 98%;
-      border-collapse: collapse;
+      /* 必须设置为 separate */
+      border-collapse: separate;
+      border-spacing: 10px 0px;
+      /* 横向间隔为 0，纵向间隔为 10px */
+      /* 确保空单元格显示背景色 */
+      empty-cells: show;
       color: white;
       font-size: 12px;
       margin: 0 auto;
     }
 
-    th,
+
     td {
       border: none;
-      padding: 5px;
+      padding: 6px 4px;
       text-align: center;
+      background-color: #323232;
     }
 
-    th {
-      background-color: rgba(255, 255, 255, 0.1);
+    tr:nth-child(1) td {
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+    }
+
+    tr:last-child td {
+      border-bottom-left-radius: 4px;
+      border-bottom-right-radius: 4px;
+    }
+
+    /* 金色背景部分 */
+    .highlight {
+      background-color: #FFD700;
+      color: black;
+      font-weight: bold;
+      /* border-radius: 5px; */
     }
 
     /* 余额样式 */
@@ -222,7 +243,6 @@
       color: #3c7ff9;
     }
 
-
     .container {
       padding: 20px;
     }
@@ -232,28 +252,6 @@
     h4 {
       text-align: left;
       margin-bottom: 10px;
-    }
-
-    .rate-box {
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .rate-item {
-      width: 24%;
-      padding: 10px;
-      background-color: #323232;
-      border-radius: 5px;
-      text-align: center;
-      font-size: 14px;
-    }
-
-    /* 金色背景部分 */
-    .highlight {
-      background-color: #FFD700;
-      color: black;
-      font-weight: bold;
-      border-radius: 5px;
     }
 
     .investment-section {
@@ -292,7 +290,7 @@
     }
 
     .amount-buttons button:hover {
-      background-color: #555;
+      /* background-color: #555; */
     }
 
     .other-amount {
@@ -317,6 +315,7 @@
       font-size: 14px;
       color: #bbb;
     }
+
     .balance-info .service-charge {
       margin-left: 25%;
     }
@@ -326,7 +325,7 @@
       border-top: 1px solid #555;
     }
 
-    .confirm-button {
+    .confirm-order {
       width: 100%;
       background-color: #FFD700;
       color: black;
@@ -337,7 +336,7 @@
       cursor: pointer;
     }
 
-    .confirm-button:hover {
+    .confirm-order:hover {
       background-color: #FFC107;
     }
   </style>
@@ -377,15 +376,16 @@
       </li>
     </ul>
   </div>
-  <!-- 下半部分 -->
-  <!-- <div class="bottom-section">
+
+  <div class="container">
+    <h3>{:L('结算时间 / 倍率')}</h3>
     <table>
       <tr>
-        <th>{:L('时间')}</th>
-        <th>{:L('时间')}</th>
-        <th>{:L('时间')}</th>
-        <th>{:L('时间')}</th>
-        <th>{:L('时间')}</th>
+        <td>{:L('时间')}</td>
+        <td>{:L('时间')}</td>
+        <td>{:L('时间')}</td>
+        <td>{:L('时间')}</td>
+        <td>{:L('时间')}</td>
       </tr>
       <tr>
         <td>240{:L('秒')}</td>
@@ -395,10 +395,10 @@
         <td>60{:L('秒')}</td>
       </tr>
       <tr>
-        <td>500 - 49999</td>
-        <td>50000 - 99999</td>
-        <td>100000 - 199999</td>
-        <td>200000 - 499999</td>
+        <td>500|49999</td>
+        <td>50000|99999</td>
+        <td>100000|199999</td>
+        <td>200000|499999</td>
         <td>500000</td>
       </tr>
       <tr>
@@ -409,70 +409,33 @@
         <td>{:L('收益')}20%</td>
       </tr>
     </table>
-    <div class="balance" id='balance'>{:L('余额')}：{$user['money']}</div>
-    <div class="order-amount">
-      <label for="order-amount-input">{:L('下单金额')}</label>
-      <input type="number" id="order-amount-input" placeholder="{:L('请输入金额')}">
-    </div>
-    <button class="confirm-order">{:L('确认下单')}</button>
-  </div> -->
-
-  <div class="container">
-    <h3>结算时间 / 倍率</h3>
-    <div class="rate-box">
-      <div class="rate-item highlight">
-        <p>{:L('时间')}</p>
-        <p>{:L('秒')}</p>
-        <p>收益 5%</p>
-        <p>100|1000</p>
-      </div>
-      <div class="rate-item">
-        <p>{:L('时间')}</p>
-        <p>{:L('秒')}</p>
-        <p>收益 7%</p>
-        <p>100|5000</p>
-      </div>
-      <div class="rate-item">
-        <p>{:L('时间')}</p>
-        <p>{:L('秒')}</p>
-        <p>收益 9%</p>
-        <p>500|10000</p>
-      </div>
-      <div class="rate-item">
-        <p>{:L('时间')}</p>
-        <p>{:L('秒')}</p>
-        <p>收益 12%</p>
-        <p>10000|100000</p>
-      </div>
-    </div>
 
     <div class="investment-section">
-      <h4>投资金额</h4>
-      <p>投资金额余额不足，请充值！</p>
+      <h4>{:L('投资金额')}</h4>
+      <p>{:L('投资金额余额不足，请充值！')}</p>
       <div class="amount-buttons">
-        <button class="selected">100</button>
-        <button>1000</button>
-        <button>5000</button>
-        <button>10000</button>
+        <button onclick="selectAmount(0)">500</button>
+        <button onclick="selectAmount(1)">1000</button>
+        <button onclick="selectAmount(2)">5000</button>
+        <button onclick="selectAmount(3)">10000</button>
       </div>
 
       <div class="other-amount">
-        <h4>其他金额</h4>
-        <input type="text" placeholder="其他金额">
+        <h4>{:L('其他金额')}</h4>
+        <input id="order-amount-input" type="text" placeholder="{:L('请输入金额')}">
       </div>
 
       <div class="balance-info">
-        <span class="">余额: 0.00</span>
-        <span class="service-charge">手续费: 0%</span>
+        <span class="">{:L('余额')}: {$user['money']}</span>
+        <span class="service-charge">{:L('手续费')}: 0%</span>
       </div>
 
       <div class="divider"></div> <!-- 分割线 -->
 
-      <button class="confirm-button">确认下单</button>
+      <button class="confirm-order">{:L('确认下单')}</button>
     </div>
   </div>
 
-  <!-- <div class="countdown-clock" id="countdown-clock" style="display: none;"></div> -->
   <div class="timer-box" id="timer-box" style="display: none;">
     <div class="timer-container" id="countdown-clock">
       <svg class="progress-ring" width="220" height="220">
@@ -489,11 +452,52 @@
   <!-- 引入 Layui 的 JavaScript 文件 -->
   <script src="https://cdn.staticfile.org/layui/2.8.12/layui.min.js"></script>
   <script>
+    const orderAmountInput = document.getElementById('order-amount-input');
+    const amountList = [500, 1000, 5000, 10000]
+
+    function selectAmount(index) {
+      const amount = amountList[index];
+      orderAmountInput.value = amount;
+      getCell(index);
+      const btns = document.querySelectorAll('.amount-buttons button');
+      for (let i = 0; i < btns.length; i++) {
+        if (index === i) {
+          btns[i].classList.add('selected');
+        } else {
+          btns[i].classList.remove('selected');
+        }
+      }
+    }
+    function getCell(columnIndex) {
+      const index = columnIndex + 1;
+      const td = document.querySelectorAll('tr td');
+      for (let i = 0; i < td.length; i++) {
+        td[i].classList.remove('highlight');
+      }
+      if (index === 1) {
+        const td = document.querySelectorAll('tr td:nth-child(1)');
+        updateClass(td);
+      } else if (index === 2) {
+        const td = document.querySelectorAll('tr td:nth-child(2)');
+        updateClass(td);
+      } else if (index === 3) {
+        const td = document.querySelectorAll('tr td:nth-child(3)');
+        updateClass(td);
+      } else if (index === 4) {
+        const td = document.querySelectorAll('tr td:nth-child(4)');
+        updateClass(td);
+      }
+    }
+    // 更新表格列的样式
+    function updateClass(td) {
+      for (let i = 0; i < td.length; i++) {
+        td[i].classList.add('highlight');
+      }
+    }
     layui.use(['layer', 'jquery'], function () {
       const layer = layui.layer;
       const $ = layui.jquery;
       const confirmOrderButton = document.querySelector('.confirm-order');
-      const orderAmountInput = document.getElementById('order-amount-input');
       const timeRow = document.querySelector('table tr:nth-child(2)');
       const shouyiRow = document.querySelector('table tr:nth-child(4)');
       const amountRangeRow = document.querySelector('table tr:nth-child(3)');
@@ -502,6 +506,7 @@
       const countdownText = document.getElementById('countdown');
       const progressCircle = document.getElementById('progress');
       const circumference = 2 * Math.PI * 60;  // 计算圆的周长
+
 
       confirmOrderButton.addEventListener('click', function () {
         const amount = parseFloat(orderAmountInput.value);
@@ -513,12 +518,12 @@
         }
 
         let columnIndex = -1;
-        // 遍历第三行的每个单元格，找到匹配的金额区间
+        // 遍历第三行的每个单元格，找到匹配的金额区间(在现有的html数据中进行匹配)
         for (let i = 0; i < amountRangeRow.cells.length; i++) {
           const cellText = amountRangeRow.cells[i].textContent;
           let min, max;
-          if (cellText.includes('-')) {
-            [min, max] = cellText.split('-').map(Number);
+          if (cellText.includes('|')) {
+            [min, max] = cellText.split('|').map(Number);
           } else {
             min = max = parseInt(cellText);
           }
@@ -529,12 +534,15 @@
         }
 
         if (columnIndex !== -1) {
-          const timeCell = timeRow.cells[columnIndex];
+          const timeCell = timeRow.cells[columnIndex]; // 显示时间那行
           const timeText = timeCell.textContent.replace("{:L('秒')}", '');
           const countdownTime = parseInt(timeText);
 
           const shouyiCell = shouyiRow.cells[columnIndex];
           const shouyiText = shouyiCell.textContent.replace("{:L('收益')}", '');
+
+          console.log('columnIndex', columnIndex);
+          getCell(columnIndex);
 
           // 禁用按钮并改变颜色
           confirmOrderButton.disabled = true;
@@ -575,18 +583,12 @@
             countdownClock.classList.remove('prompt-text');
             const countdownInterval = setInterval(() => {
               if (remainingTime >= 0) {
-                // countdownClock.textContent = remainingTime;
-                // 动态计算渐变角度，实现逆时针减少
-                // const angle = (remainingTime / countdownTime) * 360;
-                // countdownClock.style.backgroundImage = `conic-gradient(#808080 0deg, #808080 ${angle}deg, transparent ${angle}deg)`;
                 remainingTime--;
                 updateProgress();
               }
               if (remainingTime < 0) {
                 clearInterval(countdownInterval);
                 timerBox.style.display = 'none';
-                // 移除边框
-                // countdownClock.style.backgroundImage = 'none';
                 // 启用按钮并恢复颜色
                 confirmOrderButton.disabled = false;
 
@@ -650,9 +652,6 @@
     // 初始化时立即更新一次
     updateDynamicIds();
   </script>
-
-
-
 
   <!--end-->
   </div>
