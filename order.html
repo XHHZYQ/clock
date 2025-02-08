@@ -42,7 +42,7 @@
       justify-content: center;
       align-items: flex-start;
       /* 改为 flex-start */
-      padding-left: 20px;
+      /* padding-left: 20px; */
       /* 增加左边距 */
     }
 
@@ -52,7 +52,7 @@
       list-style-type: none;
       padding: 0;
       margin: 0;
-      width: 80%;
+      width: 100%;
     }
 
     .top-section li {
@@ -553,21 +553,20 @@
         }
 
         if (columnIndex !== -1) {
-          const timeCell = timeRow.cells[columnIndex]; // 显示时间那行
-          const timeText = timeCell.textContent.replace("{:L('秒')}", '');
-          const countdownTime = parseInt(timeText);
-
-          const shouyiCell = shouyiRow.cells[columnIndex];
-          const shouyiText = shouyiCell.textContent.replace("{:L('收益')}", '');
-
           getCell(columnIndex);
 
-          type === 'click' && onSubmit();
+          type === 'click' && onSubmit(amount, columnIndex);
         }
       }
 
 
-      function onSubmit() {
+      function onSubmit(amount, columnIndex) {
+        const timeCell = timeRow.cells[columnIndex]; // 显示时间那行
+        const timeText = timeCell.textContent.replace("{:L('秒')}", '');
+        const countdownTime = parseInt(timeText);
+
+        const shouyiCell = shouyiRow.cells[columnIndex];
+        const shouyiText = shouyiCell.textContent.replace("{:L('收益')}", '');
         // 禁用按钮并改变颜色
         confirmOrderButton.disabled = true;
 
