@@ -4,12 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>移动端布局页面</title>
-  <!-- 引入 Layui 的 CSS 文件 -->
-  <!-- <link rel="stylesheet" href="https://cdn.staticfile.org/layui/2.8.12/css/layui.min.css"> -->
-  <!-- <link rel="stylesheet" href="https://cdn.staticfile.org/layui/2.8.12/css/layui.min.css"> -->
+  <title></title>
   <style>
-    /* 全局样式，去除默认的内外边距 */
     * {
       padding: 0;
       margin: 0;
@@ -23,7 +19,6 @@
       flex-direction: column;
       height: 100vh;
       position: relative;
-      /* background-color: rgb(19, 26, 45); */
       font-family: Arial, sans-serif;
       background-color: #1e1e1e;
       color: white;
@@ -41,9 +36,6 @@
       flex-direction: column;
       justify-content: center;
       align-items: flex-start;
-      /* 改为 flex-start */
-      /* padding-left: 20px; */
-      /* 增加左边距 */
     }
 
 
@@ -122,7 +114,6 @@
       background-color: #FFD700;
       color: black;
       font-weight: bold;
-      /* border-radius: 5px; */
     }
 
     /* 余额样式 */
@@ -210,7 +201,9 @@
     }
 
     .timer-box {
-      position: absolute;
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100vw;
       height: 100vh;
       display: flex;
@@ -243,12 +236,15 @@
       color: #3c7ff9;
     }
 
-    .container {
-      padding: 20px 10px;
+    /* 禁止页面滚动 */
+    body.modal-open {
+      overflow: hidden;
+      touch-action: none;
+      height: 100vh;
     }
 
-    .container .title {
-      /* margin-left: 10px; */
+    .container {
+      padding: 20px 10px;
     }
 
     /* 标题样式 */
@@ -291,10 +287,6 @@
       background-color: #FFD700;
       color: black;
       font-weight: bold;
-    }
-
-    .amount-buttons button:hover {
-      /* background-color: #555; */
     }
 
     .other-amount {
@@ -413,7 +405,7 @@
   </div>
 
   <div class="container">
-    <h3 class="title">{:L('结算时间')} / {:L('倍率')}</h3>
+    <h3>{:L('结算时间')} / {:L('倍率')}</h3>
     <table>
       <tr>
         <td>{:L('时间')}</td>
@@ -488,12 +480,7 @@
     <div id="notification-box"></div>
   </div>
 
-  <!-- 引入 Layui 的 JavaScript 文件 -->
-  <!-- <script src="https://cdn.staticfile.org/layui/2.8.12/layui.min.js"></script> -->
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script type="module">
-    import axios from 'axios';
-
+  <script>
     function showNotification(message, type) {
       const container = document.getElementById('notification-container');
       container.style.display = 'flex';
@@ -525,7 +512,6 @@
     function selectAmount(index) {
       const amount = amountList[index];
       orderAmountInput.value = amount;
-      // getCell(index);
       getCell(0);
       setBtnClass(index);
     }
@@ -567,9 +553,6 @@
       }
     }
 
-    // layui.use(['layer', 'jquery'], function () {
-    // const layer = layui.layer;
-    // const $ = layui.jquery;
     const confirmOrderButton = document.querySelector('.confirm-order');
     const timeRow = document.querySelector('table tr:nth-child(2)');
     const shouyiRow = document.querySelector('table tr:nth-child(4)');
@@ -596,7 +579,6 @@
       // 检查下单金额是否合法
       if (isNaN(amount) || amount < 500 || amount > 500000) {
         showNotification("{:L('下单金额不合法')}");
-        // layer.msg("{:L('下单金额不合法')}");
         return;
       }
 
@@ -632,32 +614,39 @@
       const shouyiCell = shouyiRow.cells[columnIndex];
       const shouyiText = shouyiCell.textContent.replace("{:L('收益')}", '');
       // 禁用按钮并改变颜色
-      confirmOrderButton.disabled = true;
+      confirmOrderButton.setAttribute('disabled', true);
+      console.log('confirmOrderButton.disabled', confirmOrderButton.disabled);
 
       const orderData = {
         amount: amount,
         shouyi: shouyiText,
         time: countdownTime
       };
-      const res = await axios({
-        url: "{:U('form')}",
-        method: 'POST',
-        data: JSON.stringify(orderData),
-        headers: {
-          'Content-Type': 'application/json'
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "{:U('form')}", true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              var data = JSON.parse(xhr.responseText);
+              console.log('Success:', data);
+              document.getElementById('balance').innerHTML = "{:L('余额')}:" + data.balance;
+              showNotification("{:L('下单成功')}");
+            } catch (e) {
+              console.error("JSON 解析错误:", e);
+            }
+          } else {
+            showNotification("{:L('订单处理失败，请稍后重试')}");
+          }
         }
-      });
-
-      if (res.code === 1) {
-        console.log('Success:', data);
-        $('#balance').html("{:L('余额')}:" + data.balance);
-        // layer.msg("{:L('下单成功')}");
-        showNotification("{:L('下单成功')}");
-
-      } else {
-        // layer.msg("{:L('订单处理失败，请稍后重试')}");
+      };
+      xhr.onerror = function () {
         showNotification("{:L('订单处理失败，请稍后重试')}");
-      }
+      };
+      xhr.send(JSON.stringify(orderData));
 
       setTimeout(function () {
         console.log('这段代码延迟了1秒执行');
@@ -665,6 +654,11 @@
 
       // 显示倒计时时钟并显示提示信息
       timerBox.style.display = 'flex';
+      document.body.classList.add('modal-open'); // 禁止滚动
+      // 禁止 touchmove 事件（防止 iOS 滚动穿透）
+      document.addEventListener('touchmove', function (e) {
+        e.preventDefault();
+      }, { passive: false });
       countdown.textContent = "{:L('返佣中')}";
       countdownClock.classList.add('prompt-text');
 
@@ -680,6 +674,12 @@
           if (remainingTime < 0) {
             clearInterval(countdownInterval);
             timerBox.style.display = 'none';
+            document.body.classList.remove('modal-open'); // 恢复滚动
+            // 解除 touchmove 事件监听
+            document.removeEventListener('touchmove', function (e) {
+              e.preventDefault();
+            });
+
             // 启用按钮并恢复颜色
             confirmOrderButton.disabled = false;
 
@@ -704,13 +704,10 @@
                 console.log('Success:', data);
                 $('#balance').html('余额:' + data.balance);
                 // 可以在这里添加处理响应数据的逻辑，比如显示成功提示等
-                // layer.msg('恭喜您收益已入袋!');
                 showNotification("{:L('恭喜您收益已入袋!')}");
 
               })
               .catch(error => {
-                console.error('Error:', error);
-                // layer.msg('网络错误!');
                 showNotification("{:L('网络错误!')}");
 
               });
@@ -727,7 +724,6 @@
         console.log('調用了 progeree', circumference, remainingTime / countdownTime);
       }
     }
-    // });
 
     // 动态生成 ID 并更新
     function updateDynamicIds() {
@@ -745,18 +741,8 @@
     // 初始化时立即更新一次
     updateDynamicIds();
   </script>
-
-  <!--end-->
   </div>
 </body>
-<!-- <script type="text/javascript" src="__PUBLIC__/mobile/js/jquery.js"></script> -->
 <script type="text/javascript" src="__PUBLIC__/mobile/js/font.js"></script>
-<!-- <script type="text/javascript">
-  $(function () {
-    $('.confirm').click(function () {
-      $('#subform').submit();
-    });
-  })
-</script> -->
 
 </html>
