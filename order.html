@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>移动端布局页面</title>
   <!-- 引入 Layui 的 CSS 文件 -->
-  <link rel="stylesheet" href="https://cdn.staticfile.org/layui/2.8.12/css/layui.min.css">
-  <link rel="stylesheet" href="https://cdn.staticfile.org/layui/2.8.12/css/layui.min.css">
+  <!-- <link rel="stylesheet" href="https://cdn.staticfile.org/layui/2.8.12/css/layui.min.css"> -->
+  <!-- <link rel="stylesheet" href="https://cdn.staticfile.org/layui/2.8.12/css/layui.min.css"> -->
   <style>
     /* 全局样式，去除默认的内外边距 */
     * {
@@ -343,6 +343,37 @@
     .confirm-order:hover {
       background-color: #FFC107;
     }
+
+    #notification-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #notification-box {
+      z-index: 1000;
+    }
+
+    #notification-box .notification {
+      padding: 7px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      color: white;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+      background-color: #000;
+      font-size: 12px;
+    }
+
+    #notification-box .notification.visible {
+      opacity: 1;
+    }
   </style>
 </head>
 
@@ -453,9 +484,41 @@
     </div>
   </div>
 
+  <div id="notification-container">
+    <div id="notification-box"></div>
+  </div>
+
   <!-- 引入 Layui 的 JavaScript 文件 -->
-  <script src="https://cdn.staticfile.org/layui/2.8.12/layui.min.js"></script>
-  <script>
+  <!-- <script src="https://cdn.staticfile.org/layui/2.8.12/layui.min.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script type="module">
+    import axios from 'axios';
+
+    function showNotification(message, type) {
+      const container = document.getElementById('notification-container');
+      container.style.display = 'flex';
+      const box = document.getElementById('notification-box');
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.innerHTML = message;
+
+      box.appendChild(notification);
+
+      // 显示提示信息
+      setTimeout(() => {
+        notification.classList.add('visible');
+      }, 100);
+
+      // 3秒后移除提示信息
+      setTimeout(() => {
+        container.style.display = 'none';
+        notification.classList.remove('visible');
+        setTimeout(() => {
+          box.removeChild(notification);
+        }, 500);
+      }, 3000);
+    }
+
     const orderAmountInput = document.getElementById('order-amount-input');
     const amountList = [500, 1000, 5000, 10000]
 
@@ -504,158 +567,167 @@
       }
     }
 
-    layui.use(['layer', 'jquery'], function () {
-      const layer = layui.layer;
-      const $ = layui.jquery;
-      const confirmOrderButton = document.querySelector('.confirm-order');
-      const timeRow = document.querySelector('table tr:nth-child(2)');
-      const shouyiRow = document.querySelector('table tr:nth-child(4)');
-      const amountRangeRow = document.querySelector('table tr:nth-child(3)');
-      const timerBox = document.getElementById('timer-box');
-      const countdownClock = document.getElementById('countdown-clock');
-      const countdownText = document.getElementById('countdown');
-      const progressCircle = document.getElementById('progress');
-      const circumference = 2 * Math.PI * 60;  // 计算圆的周长
+    // layui.use(['layer', 'jquery'], function () {
+    // const layer = layui.layer;
+    // const $ = layui.jquery;
+    const confirmOrderButton = document.querySelector('.confirm-order');
+    const timeRow = document.querySelector('table tr:nth-child(2)');
+    const shouyiRow = document.querySelector('table tr:nth-child(4)');
+    const amountRangeRow = document.querySelector('table tr:nth-child(3)');
+    const timerBox = document.getElementById('timer-box');
+    const countdownClock = document.getElementById('countdown-clock');
+    const countdownText = document.getElementById('countdown');
+    const progressCircle = document.getElementById('progress');
+    const circumference = 2 * Math.PI * 60;  // 计算圆的周长
 
-      orderAmountInput.addEventListener('change', function (e) {
-        console.log('change', e.type);
-        handleSelect(e.type);
-        setBtnClass(-1);
-      });
+    orderAmountInput.addEventListener('input', function (e) {
+      console.log('input。。', e.type);
+      handleSelect(e.type);
+      setBtnClass(-1);
+    });
 
-      confirmOrderButton.addEventListener('click', function (e) {
-        handleSelect(e.type);
-      });
+    confirmOrderButton.addEventListener('click', function (e) {
+      handleSelect(e.type);
+    });
 
-      function handleSelect(type) {
-        const amount = parseFloat(orderAmountInput.value);
+    function handleSelect(type) {
+      const amount = parseFloat(orderAmountInput.value);
 
-        // 检查下单金额是否合法
-        if (isNaN(amount) || amount < 500 || amount > 500000) {
-          layer.msg("{:L('下单金额不合法')}");
-          return;
+      // 检查下单金额是否合法
+      if (isNaN(amount) || amount < 500 || amount > 500000) {
+        showNotification("{:L('下单金额不合法')}");
+        // layer.msg("{:L('下单金额不合法')}");
+        return;
+      }
+
+      let columnIndex = -1;
+      // 遍历第三行的每个单元格，找到匹配的金额区间(在现有的html数据中进行匹配)
+      for (let i = 0; i < amountRangeRow.cells.length; i++) {
+        const cellText = amountRangeRow.cells[i].textContent;
+        let min, max;
+        if (cellText.includes('|')) {
+          [min, max] = cellText.split('|').map(Number);
+        } else {
+          min = max = parseInt(cellText);
         }
-
-        let columnIndex = -1;
-        // 遍历第三行的每个单元格，找到匹配的金额区间(在现有的html数据中进行匹配)
-        for (let i = 0; i < amountRangeRow.cells.length; i++) {
-          const cellText = amountRangeRow.cells[i].textContent;
-          let min, max;
-          if (cellText.includes('|')) {
-            [min, max] = cellText.split('|').map(Number);
-          } else {
-            min = max = parseInt(cellText);
-          }
-          if (amount >= min && amount <= max) {
-            columnIndex = i;
-            break;
-          }
-        }
-
-        if (columnIndex !== -1) {
-          getCell(columnIndex);
-
-          type === 'click' && onSubmit(amount, columnIndex);
+        if (amount >= min && amount <= max) {
+          columnIndex = i;
+          break;
         }
       }
 
+      if (columnIndex !== -1) {
+        getCell(columnIndex);
 
-      function onSubmit(amount, columnIndex) {
-        const timeCell = timeRow.cells[columnIndex]; // 显示时间那行
-        const timeText = timeCell.textContent.replace("{:L('秒')}", '');
-        const countdownTime = parseInt(timeText);
+        type === 'click' && onSubmit(amount, columnIndex);
+      }
+    }
 
-        const shouyiCell = shouyiRow.cells[columnIndex];
-        const shouyiText = shouyiCell.textContent.replace("{:L('收益')}", '');
-        // 禁用按钮并改变颜色
-        confirmOrderButton.disabled = true;
 
-        const orderData = {
-          amount: amount,
-          shouyi: shouyiText,
-          time: countdownTime
-        };
-        $.ajax({
-          url: "{:U('form')}",
-          type: 'POST',
-          data: JSON.stringify(orderData),
-          contentType: 'application/json',
-          dataType: 'json',
-          success: function (data) {
-            console.log('Success:', data);
-            $('#balance').html("{:L('余额')}:" + data.balance);
-            layer.msg("{:L('下单成功')}");
-          },
-          error: function (error) {
-            layer.msg("{:L('订单处理失败，请稍后重试')}");
+    async function onSubmit(amount, columnIndex) {
+      const timeCell = timeRow.cells[columnIndex]; // 显示时间那行
+      const timeText = timeCell.textContent.replace("{:L('秒')}", '');
+      const countdownTime = parseInt(timeText);
+
+      const shouyiCell = shouyiRow.cells[columnIndex];
+      const shouyiText = shouyiCell.textContent.replace("{:L('收益')}", '');
+      // 禁用按钮并改变颜色
+      confirmOrderButton.disabled = true;
+
+      const orderData = {
+        amount: amount,
+        shouyi: shouyiText,
+        time: countdownTime
+      };
+      const res = await axios({
+        url: "{:U('form')}",
+        method: 'POST',
+        data: JSON.stringify(orderData),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (res.code === 1) {
+        console.log('Success:', data);
+        $('#balance').html("{:L('余额')}:" + data.balance);
+        // layer.msg("{:L('下单成功')}");
+        showNotification("{:L('下单成功')}");
+
+      } else {
+        // layer.msg("{:L('订单处理失败，请稍后重试')}");
+        showNotification("{:L('订单处理失败，请稍后重试')}");
+      }
+
+      setTimeout(function () {
+        console.log('这段代码延迟了1秒执行');
+      }, 1000);
+
+      // 显示倒计时时钟并显示提示信息
+      timerBox.style.display = 'flex';
+      countdown.textContent = "{:L('返佣中')}";
+      countdownClock.classList.add('prompt-text');
+
+      // 延迟2秒后开始倒计时
+      let remainingTime = countdownTime;
+      setTimeout(() => {
+        countdownClock.classList.remove('prompt-text');
+        const countdownInterval = setInterval(() => {
+          if (remainingTime >= 0) {
+            remainingTime--;
+            updateProgress();
           }
-        });
+          if (remainingTime < 0) {
+            clearInterval(countdownInterval);
+            timerBox.style.display = 'none';
+            // 启用按钮并恢复颜色
+            confirmOrderButton.disabled = false;
 
-        setTimeout(function () {
-          console.log('这段代码延迟了1秒执行');
+            // 发起 AJAX 请求
+            const orderData = {
+              amount: amount
+            };
+            fetch("{:U('isjiesuan')}", {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(orderData)
+            })
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error('Network response was not ok');
+                }
+                return response.json();
+              })
+              .then(data => {
+                console.log('Success:', data);
+                $('#balance').html('余额:' + data.balance);
+                // 可以在这里添加处理响应数据的逻辑，比如显示成功提示等
+                // layer.msg('恭喜您收益已入袋!');
+                showNotification("{:L('恭喜您收益已入袋!')}");
+
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                // layer.msg('网络错误!');
+                showNotification("{:L('网络错误!')}");
+
+              });
+          }
         }, 1000);
 
-        // 显示倒计时时钟并显示提示信息
-        timerBox.style.display = 'flex';
-        countdown.textContent = "{:L('返佣中')}";
-        countdownClock.classList.add('prompt-text');
+        updateProgress();  // 初始化进度条
+      }, 2000);
 
-        // 延迟2秒后开始倒计时
-        let remainingTime = countdownTime;
-        setTimeout(() => {
-          countdownClock.classList.remove('prompt-text');
-          const countdownInterval = setInterval(() => {
-            if (remainingTime >= 0) {
-              remainingTime--;
-              updateProgress();
-            }
-            if (remainingTime < 0) {
-              clearInterval(countdownInterval);
-              timerBox.style.display = 'none';
-              // 启用按钮并恢复颜色
-              confirmOrderButton.disabled = false;
-
-              // 发起 AJAX 请求
-              const orderData = {
-                amount: amount
-              };
-              fetch("{:U('isjiesuan')}", {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(orderData)
-              })
-                .then(response => {
-                  if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                  }
-                  return response.json();
-                })
-                .then(data => {
-                  console.log('Success:', data);
-                  $('#balance').html('余额:' + data.balance);
-                  // 可以在这里添加处理响应数据的逻辑，比如显示成功提示等
-                  layer.msg('恭喜您收益已入袋!');
-                })
-                .catch(error => {
-                  console.error('Error:', error);
-                  layer.msg('网络错误!');
-                });
-            }
-          }, 1000);
-
-          updateProgress();  // 初始化进度条
-        }, 2000);
-
-        function updateProgress() {
-          const progress = (remainingTime / countdownTime) * circumference;
-          progressCircle.style.strokeDashoffset = circumference - progress;
-          countdown.textContent = remainingTime;
-          console.log('調用了 progeree', circumference, remainingTime / countdownTime);
-        }
+      function updateProgress() {
+        const progress = (remainingTime / countdownTime) * circumference;
+        progressCircle.style.strokeDashoffset = circumference - progress;
+        countdown.textContent = remainingTime;
+        console.log('調用了 progeree', circumference, remainingTime / countdownTime);
       }
-    });
+    }
+    // });
 
     // 动态生成 ID 并更新
     function updateDynamicIds() {
@@ -677,14 +749,14 @@
   <!--end-->
   </div>
 </body>
-<script type="text/javascript" src="__PUBLIC__/mobile/js/jquery.js"></script>
+<!-- <script type="text/javascript" src="__PUBLIC__/mobile/js/jquery.js"></script> -->
 <script type="text/javascript" src="__PUBLIC__/mobile/js/font.js"></script>
-<script type="text/javascript">
+<!-- <script type="text/javascript">
   $(function () {
     $('.confirm').click(function () {
       $('#subform').submit();
     });
   })
-</script>
+</script> -->
 
 </html>
