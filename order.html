@@ -544,6 +544,9 @@
       } else if (index === 4) {
         const td = document.querySelectorAll('tr td:nth-child(4)');
         updateClass(td);
+      } else if (index === 5) {
+        const td = document.querySelectorAll('tr td:nth-child(5)');
+        updateClass(td);
       }
     }
     // 更新表格列的样式
@@ -575,7 +578,6 @@
 
     function handleSelect(type) {
       const amount = parseFloat(orderAmountInput.value);
-
       // 检查下单金额是否合法
       if (isNaN(amount) || amount < 500 || amount > 500000) {
         showNotification("{:L('下单金额不合法')}");
