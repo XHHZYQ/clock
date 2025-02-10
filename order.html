@@ -67,6 +67,10 @@
       width: 130px;
     }
 
+    .top-list li {
+      font-size: 14px;
+    }
+
     /* 下半部分样式 */
     .bottom-section {
       flex: 1;
@@ -231,9 +235,23 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 32px;
       font-weight: bold;
+      text-align: center;
+    }
+
+    .countdown-text .count-down {
       color: #3c7ff9;
+      font-size: 32px;
+    }
+
+    .countdown-text .label {
+      color: #fff;
+      font-size: 15px;
+    }
+
+    .countdown-text .amount {
+      color: #cd354c;
+      font-size: 18px;
     }
 
     /* 禁止页面滚动 */
@@ -472,7 +490,11 @@
         <circle id="progress" cx="75" cy="75" r="60" fill="none" stroke="#f0b72c" stroke-width="8"
           stroke-linecap="round" stroke-dasharray="377" stroke-dashoffset="0"></circle>
       </svg>
-      <div id="countdown" class="countdown-text"></div>
+      <div class="countdown-text">
+        <div class="count-down" id="countdown"></div>
+        <p class="label">{:L('下单金额')}</p>
+        <p class="amount" id="amount"></p>
+      </div>
     </div>
   </div>
 
@@ -562,7 +584,6 @@
     const amountRangeRow = document.querySelector('table tr:nth-child(3)');
     const timerBox = document.getElementById('timer-box');
     const countdownClock = document.getElementById('countdown-clock');
-    const countdownText = document.getElementById('countdown');
     const progressCircle = document.getElementById('progress');
     const circumference = 2 * Math.PI * 60;  // 计算圆的周长
 
@@ -656,6 +677,9 @@
 
       // 显示倒计时时钟并显示提示信息
       timerBox.style.display = 'flex';
+      const countdown = document.getElementById('countdown');
+      const amountID = document.getElementById('amount');
+      amountID.textContent = '' + amount;
       document.body.classList.add('modal-open'); // 禁止滚动
       // 禁止 touchmove 事件（防止 iOS 滚动穿透）
       document.addEventListener('touchmove', function (e) {
